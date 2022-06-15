@@ -31,7 +31,7 @@ session:
   secret: unsecure_session_secret
   expiration: 1h
   inactivity: 5m
-  remember_me_duration:  1M
+  remember_me_duration: 1M
 ```
 
 ## Providers
