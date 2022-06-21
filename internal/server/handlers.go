@@ -324,7 +324,7 @@ func handleRouter(config schema.Configuration, providers middlewares.Providers) 
 	r.MethodNotAllowed = handlers.Status(fasthttp.StatusMethodNotAllowed)
 	r.NotFound = handleNotFound(middleware(serveIndexHandler))
 
-	handler := middlewares.LogRequest(r.Handler)
+	handler := middlewares.LogRequest(middlewares.LogRequestDetailed(r.Handler))
 	if config.Server.Path != "" {
 		handler = middlewares.StripPath(config.Server.Path)(handler)
 	}

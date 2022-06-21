@@ -240,6 +240,8 @@ func (ctx *AutheliaCtx) SetJSONBody(value interface{}) error {
 		return fmt.Errorf("unable to marshal JSON body: %w", err)
 	}
 
+	ctx.Logger.Debugf("JSON Body: %s", b)
+
 	ctx.SetContentType(contentTypeApplicationJSON)
 	ctx.SetBody(b)
 
