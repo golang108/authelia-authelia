@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/sirupsen/logrus"
@@ -42,6 +43,8 @@ func LogRequestDetailed(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 			return
 		}
 
+		fmt.Printf("%s\n", ctx.Response.Header.Header())
+
 		logging.Logger().WithFields(logrus.Fields{
 			"ip":       ip.String(),
 			"method":   string(ctx.Method()),
@@ -50,5 +53,6 @@ func LogRequestDetailed(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 			"uri":      string(ctx.RequestURI()),
 			"location": string(location),
 		}).Debug("Response Written")
+
 	}
 }
