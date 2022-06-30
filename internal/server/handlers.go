@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net"
 	"os"
 	"strconv"
@@ -9,6 +10,7 @@ import (
 
 	duoapi "github.com/duosecurity/duo_api_golang"
 	"github.com/fasthttp/router"
+	"github.com/google/uuid"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	"github.com/valyala/fasthttp"
@@ -24,6 +26,32 @@ import (
 	"github.com/authelia/authelia/v4/internal/oidc"
 	"github.com/authelia/authelia/v4/internal/utils"
 )
+
+func handleLogRequest(next fasthttp.RequestHandler) fasthttp.RequestHandler {
+	return func(ctx *fasthttp.RequestCtx) {
+		requestID := uuid.New()
+
+		log := logging.Logger().WithField("request_id", requestID.String())
+
+		var reqHeaders []string
+
+		ctx.Request.Header.VisitAll(func(key, value []byte) {
+			reqHeaders = append(reqHeaders, fmt.Sprintf("%s: %s", key, value))
+		})
+
+		log.WithField("path", string(ctx.Path())).WithField("headers", strings.Join(reqHeaders, ", ")).WithField("body", string(ctx.Request.Body())).Debug("Request")
+
+		next(ctx)
+
+		var resHeaders []string
+
+		ctx.Response.Header.VisitAll(func(key, value []byte) {
+			resHeaders = append(resHeaders, fmt.Sprintf("%s: %s", key, value))
+		})
+
+		log.WithField("status", strconv.Itoa(ctx.Response.StatusCode())).WithField("headers", strings.Join(resHeaders, ", ")).WithField("body", string(ctx.Response.Body())).Debug("Response")
+	}
+}
 
 // Replacement for the default error handler in fasthttp.
 func handleError() func(ctx *fasthttp.RequestCtx, err error) {
@@ -288,8 +316,8 @@ func handleRouter(config schema.Configuration, providers middlewares.Providers) 
 			Build()
 
 		r.OPTIONS(oidc.UserinfoPath, policyCORSUserinfo.HandleOPTIONS)
-		r.GET(oidc.UserinfoPath, policyCORSUserinfo.Middleware(middlewareOIDC(middlewares.NewHTTPToAutheliaHandlerAdaptor(handlers.OpenIDConnectUserinfo))))
-		r.POST(oidc.UserinfoPath, policyCORSUserinfo.Middleware(middlewareOIDC(middlewares.NewHTTPToAutheliaHandlerAdaptor(handlers.OpenIDConnectUserinfo))))
+		r.GET(oidc.UserinfoPath, handleLogRequest(policyCORSUserinfo.Middleware(middlewareOIDC(middlewares.NewHTTPToAutheliaHandlerAdaptor(handlers.OpenIDConnectUserinfo)))))
+		r.POST(oidc.UserinfoPath, handleLogRequest(policyCORSUserinfo.Middleware(middlewareOIDC(middlewares.NewHTTPToAutheliaHandlerAdaptor(handlers.OpenIDConnectUserinfo)))))
 
 		policyCORSIntrospection := middlewares.NewCORSPolicyBuilder().
 			WithAllowCredentials(true).
