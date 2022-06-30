@@ -243,6 +243,22 @@ func TestShouldValidateAndRaiseErrorsOnBadConfiguration(t *testing.T) {
 	assert.Equal(t, "debug", c.Log.Level)
 }
 
+func TestShouldValidateAndRaiseErrorsOnYAMLWithDuplicateKeys(t *testing.T) {
+	testReset()
+
+	val := schema.NewStructValidator()
+	keys, _, err := Load(val, NewDefaultSources([]string{"./test_resources/config_duplicate_keys.yml"}, DefaultEnvPrefix, DefaultEnvDelimiter)...)
+
+	assert.NoError(t, err)
+
+	validator.ValidateKeys(keys, DefaultEnvPrefix, val)
+
+	require.Len(t, val.Errors(), 1)
+	assert.Len(t, val.Warnings(), 0)
+
+	assert.EqualError(t, val.Errors()[0], "failed to load configuration from yaml file(./test_resources/config_duplicate_keys.yml) source: yaml: unmarshal errors:\n  line 5: mapping key \"server\" already defined at line 2")
+}
+
 func TestShouldRaiseErrOnInvalidNotifierSMTPSender(t *testing.T) {
 	testReset()
 
