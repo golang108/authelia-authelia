@@ -5,9 +5,6 @@ summary: "Authelia supports several authorization endpoints on the internal web 
 date: 2023-01-25T20:36:40+11:00
 draft: false
 images: []
-menu:
-configuration:
-parent: "miscellaneous"
 weight: 199210
 toc: true
 aliases:

@@ -5,10 +5,7 @@ summary: "A guide to integrating Authelia with the Istio Kubernetes Ingress."
 date: 2022-10-02T13:59:09+11:00
 draft: false
 images: []
-menu:
-integration:
-parent: "kubernetes"
-weight: 551
+weight: 364
 toc: true
 seo:
   title: "" # custom title (optional)
@@ -20,13 +17,13 @@ seo:
 Istio uses [Envoy] as an Ingress. This means it has a relatively comprehensive integration option.
 Istio is supported with Authelia v4.37.0 and higher via the [Envoy] proxy [external authorization] filter.
 
-[Envoy]: ../proxies/envoy.md
+[Envoy]: ../../proxies/envoy.md
 [external authorization]: https://www.envoyproxy.io/docs/envoy/latest/api-v3/extensions/filters/http/ext_authz/v3/ext_authz.proto.html#extensions-filters-http-ext-authz-v3-extauthz
 
-## Get started
+## Get Started
 
 It's __*strongly recommended*__ that users setting up *Authelia* for the first time take a look at our
-[Get started](../prologue/get-started.md) guide. This takes you through various steps which are essential to
+[Get Started](../../get-started/introduction.md) guide. This takes you through various steps which are essential to
 bootstrapping *Authelia*.
 
 ## Variables
