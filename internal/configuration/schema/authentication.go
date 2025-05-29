@@ -18,11 +18,6 @@ type AuthenticationBackend struct {
 	LDAP *AuthenticationBackendLDAP `koanf:"ldap" json:"ldap" jsonschema:"title=LDAP Backend" jsonschema_description:"The LDAP authentication backend configuration."`
 }
 
-// AuthenticationBackendPasswordChange represents the configuration related to password reset functionality.
-type AuthenticationBackendPasswordChange struct {
-	Disable bool `koanf:"disable" json:"disable" jsonschema:"default=false,title=Disable" jsonschema_description:"Disables the Password Change option."`
-}
-
 // AuthenticationBackendPasswordReset represents the configuration related to password reset functionality.
 type AuthenticationBackendPasswordChange struct {
 	Disable bool `koanf:"disable" json:"disable" jsonschema:"default=false,title=Disable" jsonschema_description:"Disables the Password Change option."`

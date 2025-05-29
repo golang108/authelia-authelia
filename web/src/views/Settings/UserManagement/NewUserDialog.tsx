@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { Autocomplete, Button, Dialog, DialogContent, DialogTitle, FormControl, Grid2, TextField } from "@mui/material";
+import { Autocomplete, Button, Dialog, DialogContent, DialogTitle, FormControl, Grid, TextField } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 import PasswordMeter from "@components/PasswordMeter.tsx";
@@ -247,8 +247,8 @@ const NewUserDialog = (props: Props) => {
                 <DialogTitle>{translate("New {{item}}", { item: translate("User") })}</DialogTitle>
                 <DialogContent>
                     <FormControl variant={"standard"}>
-                        <Grid2 container spacing={1} alignItems={"center"}>
-                            <Grid2 size={{ xs: 12 }} sx={{ pt: 3 }}>
+                        <Grid container spacing={1} alignItems={"center"}>
+                            <Grid size={{ xs: 12 }} sx={{ pt: 3 }}>
                                 <TextField
                                     fullWidth
                                     id="enter-username"
@@ -259,8 +259,8 @@ const NewUserDialog = (props: Props) => {
                                     onChange={handleChange}
                                     required
                                 />
-                            </Grid2>
-                            <Grid2 size={{ xs: 12 }} sx={{ pt: 3 }}>
+                            </Grid>
+                            <Grid size={{ xs: 12 }} sx={{ pt: 3 }}>
                                 <TextField
                                     fullWidth
                                     id="enter-user-display-name"
@@ -271,8 +271,8 @@ const NewUserDialog = (props: Props) => {
                                     onChange={handleChange}
                                     required
                                 />
-                            </Grid2>
-                            <Grid2 size={{ xs: 12 }} sx={{ pt: 3 }}>
+                            </Grid>
+                            <Grid size={{ xs: 12 }} sx={{ pt: 3 }}>
                                 <TextField
                                     fullWidth
                                     id="enter-user-password"
@@ -287,8 +287,8 @@ const NewUserDialog = (props: Props) => {
                                     <PasswordMeter value={newUser?.password ?? ""} policy={pPolicy} />
                                 )}
                                 <Button onClick={handleGeneratePassword}>{translate("Generate Password")}</Button>
-                            </Grid2>
-                            <Grid2 size={{ xs: 12 }} sx={{ pt: 3 }}>
+                            </Grid>
+                            <Grid size={{ xs: 12 }} sx={{ pt: 3 }}>
                                 <TextField
                                     id="enter-user-email"
                                     fullWidth
@@ -298,8 +298,8 @@ const NewUserDialog = (props: Props) => {
                                     value={Array.isArray(newUser?.emails) ? newUser.emails[0] : (newUser?.emails ?? "")}
                                     onChange={handleChange}
                                 />
-                            </Grid2>
-                            <Grid2 size={{ xs: 12 }} sx={{ pt: 3 }}>
+                            </Grid>
+                            <Grid size={{ xs: 12 }} sx={{ pt: 3 }}>
                                 <Autocomplete
                                     multiple
                                     id="select-user-groups"
@@ -311,8 +311,8 @@ const NewUserDialog = (props: Props) => {
                                         <TextField {...params} label={translate("Groups")} placeholder="" />
                                     )}
                                 />
-                            </Grid2>
-                            <Grid2 size={{ xs: 12 }} sx={{ pt: 3 }}>
+                            </Grid>
+                            <Grid size={{ xs: 12 }} sx={{ pt: 3 }}>
                                 <Button
                                     color={"success"}
                                     onClick={handleSave}
@@ -328,8 +328,8 @@ const NewUserDialog = (props: Props) => {
                                 <Button color={"error"} onClick={handleSafeClose}>
                                     Exit
                                 </Button>
-                            </Grid2>
-                        </Grid2>
+                            </Grid>
+                        </Grid>
                     </FormControl>
                 </DialogContent>
             </Dialog>

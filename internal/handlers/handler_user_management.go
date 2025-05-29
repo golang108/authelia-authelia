@@ -184,7 +184,7 @@ func NewUserPOST(ctx *middlewares.AutheliaCtx) {
 		err         error
 		userSession session.UserSession
 		newUser     newUserRequestBody
-		options     []func(*authentication.NewUserOptionalDetailsOpts)
+		options     []func(*authentication.NewUserAdditionalAttributesOpts)
 	)
 
 	if userSession, err = ctx.GetSession(); err != nil {
@@ -250,7 +250,7 @@ func NewUserPOST(ctx *middlewares.AutheliaCtx) {
 	if !ValidateUsername(newUser.Username) {
 		ctx.Logger.WithError(err).Errorf("Username '%s' is formatted incorrectly.", newUser.Username)
 		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
-		ctx.SetJSONError(messageFmtUsernameWrongFormat)
+		ctx.SetJSONError(messageUsernameWrongFormat)
 
 		return
 	}
@@ -258,7 +258,7 @@ func NewUserPOST(ctx *middlewares.AutheliaCtx) {
 	if !ValidatePrintableUnicodeString(newUser.DisplayName) {
 		ctx.Logger.WithError(err).Errorf("Display Name '%s' is formatted incorrectly.", newUser.DisplayName)
 		ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
-		ctx.SetJSONError(messageFmtDisplayNameWrongFormat)
+		ctx.SetJSONError(messageDisplayNameWrongFormat)
 
 		return
 	}
@@ -283,7 +283,7 @@ func NewUserPOST(ctx *middlewares.AutheliaCtx) {
 		if len(errorGroups) > 0 {
 			ctx.Logger.Errorf("user not created: group(s) [%s] are formatted incorrectly", strings.Join(errorGroups, ","))
 			ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
-			ctx.SetJSONError(messageFmtGroupsWrongFormat)
+			ctx.SetJSONError(messageGroupsWrongFormat)
 
 			return
 		}
@@ -294,6 +294,10 @@ func NewUserPOST(ctx *middlewares.AutheliaCtx) {
 	if newUser.Email != "" {
 		if !ValidateEmailString(newUser.Email) {
 			ctx.Logger.WithError(err).Errorf("Email '%s' is not a valid email", newUser.Email)
+			ctx.Response.SetStatusCode(fasthttp.StatusBadRequest)
+			ctx.SetJSONError(messageEmailWrongFormat)
+
+			return
 		}
 
 		options = append(options, authentication.WithEmail(newUser.Email))
@@ -301,10 +305,18 @@ func NewUserPOST(ctx *middlewares.AutheliaCtx) {
 
 	if err = ctx.Providers.UserProvider.AddUser(newUser.Username, newUser.DisplayName, newUser.Password, options...); err != nil {
 		ctx.Logger.WithError(err).Errorf("Error occurred creating user '%s'", newUser.Username)
+		ctx.Response.SetStatusCode(fasthttp.StatusInternalServerError)
+		ctx.SetJSONError(messageOperationFailed)
+
+		return
 	}
 
 	if err = ctx.Providers.StorageProvider.CreateNewUserMetadata(ctx, newUser.Username); err != nil {
-		ctx.Logger.Error(err)
+		ctx.Logger.WithError(err).Errorf("Error occurred creating metadata for user '%s'", newUser.Username)
+		ctx.Response.SetStatusCode(fasthttp.StatusMultiStatus)
+		ctx.SetJSONError(messageIncompleteUserCreation)
+
+		return
 	}
 
 	//TODO: Add user email to notify new user of their new account. Configurable.

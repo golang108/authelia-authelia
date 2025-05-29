@@ -22,5 +22,15 @@ type UserProvider interface {
 	// ChangePassword is used to change a user's password but requires their old password to be successfully verified.
 	ChangePassword(username string, oldPassword string, newPassword string) (err error)
 
+	GetUser(username string) (details *UserDetails, err error)
+
+	ListUsers() (userList []UserDetails, err error)
+
+	UpdateUser(username string, opts ...func(options *ModifyUserDetailsOpts)) (err error)
+
+	AddUser(username, displayName, password string, opts ...func(options *NewUserAdditionalAttributesOpts)) (err error)
+
+	DeleteUser(username string) (err error)
+
 	Close() (err error)
 }

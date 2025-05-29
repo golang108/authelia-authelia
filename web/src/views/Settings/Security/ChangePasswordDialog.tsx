@@ -34,7 +34,6 @@ const ChangePasswordDialog = (props: Props) => {
     const { createSuccessNotification, createErrorNotification } = useNotifications();
 
     const [loading, setLoading] = useState(false);
-    const [formDisabled, setFormDisabled] = useState(true);
     const [oldPassword, setOldPassword] = useState("");
     const [oldPasswordError, setOldPasswordError] = useState(false);
     const [newPassword, setNewPassword] = useState("");
@@ -66,13 +65,6 @@ const ChangePasswordDialog = (props: Props) => {
         setRepeatNewPasswordError(false);
     }, []);
 
-    const resetCapsLockErrors = useCallback(() => {
-        setIsCapsLockOnOldPW(false);
-        setIsCapsLockOnNewPW(false);
-        setIsCapsLockOnRepeatNewPW(false);
-        setFormDisabled(false);
-    }, []);
-
     const resetStates = useCallback(() => {
         setOldPassword("");
         setNewPassword("");
@@ -85,8 +77,7 @@ const ChangePasswordDialog = (props: Props) => {
         setIsCapsLockOnOldPW(false);
         setIsCapsLockOnNewPW(false);
         setIsCapsLockOnRepeatNewPW(false);
-        setFormDisabled(false);
-    }, [resetPasswordErrors, resetCapsLockErrors]);
+    }, []);
 
     const handleClose = useCallback(() => {
         props.setClosed();
@@ -95,16 +86,13 @@ const ChangePasswordDialog = (props: Props) => {
 
     const asyncProcess = useCallback(async () => {
         try {
-            setFormDisabled(true);
             setLoading(true);
             const policy = await getPasswordPolicyConfiguration();
             setPPolicy(policy);
-            setFormDisabled(false);
-        } catch (err) {
+        } catch {
             createErrorNotification(
                 translate("There was an issue completing the process the verification token might have expired"),
             );
-            setFormDisabled(true);
             setLoading(true);
         }
     }, [createErrorNotification, translate]);

@@ -30,8 +30,6 @@ export const CompleteResetPasswordPath = basePath + "/api/reset-password/identit
 
 export const ChangePasswordPath = basePath + "/api/change-password";
 
-export const ChangePasswordPath = basePath + "/api/change-password";
-
 export const ResetPasswordPath = basePath + "/api/reset-password";
 export const ChecksSafeRedirectionPath = basePath + "/api/checks/safe-redirection";
 
@@ -43,6 +41,10 @@ export const UserSessionElevationPath = basePath + "/api/user/session/elevation"
 
 export const ConfigurationPath = basePath + "/api/configuration";
 export const PasswordPolicyConfigurationPath = basePath + "/api/configuration/password-policy";
+
+export const AdminConfigPath = basePath + "/api/admin/config";
+export const AdminManageUserPath = basePath + "/api/admin/user";
+export const AdminUserInfoPath = basePath + "/api/admin/users";
 
 export const LocaleInformationPath = basePath + "/locales";
 

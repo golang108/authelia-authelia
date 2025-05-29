@@ -87,6 +87,7 @@ authentication_backend:
       mail: 'mail'
       member_of: 'memberOf'
       group_name: 'cn'
+      family_name: 'sn'
 
 totp:
   issuer: 'example.com'

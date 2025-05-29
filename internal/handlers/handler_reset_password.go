@@ -279,4 +279,4 @@ func resetPasswordIdentityFinish(ctx *middlewares.AutheliaCtx, username string) 
 
 // ResetPasswordIdentityFinish the handler for finishing the identity validation.
 var ResetPasswordIdentityFinish = middlewares.IdentityVerificationFinish(
-	middlewares.IdentityVerificationFinishArgs{ActionClaim: ActionResetPassword}, resetPasswordIdentityVerificationFinish)
+	middlewares.IdentityVerificationFinishArgs{ActionClaim: ActionResetPassword}, resetPasswordIdentityFinish)

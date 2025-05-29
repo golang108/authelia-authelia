@@ -16,20 +16,27 @@ type UserDetails struct {
 	Groups      []string
 }
 
-type NewUserOptionalDetailsOpts struct {
-	Email    string
-	Disabled bool
-	Groups   []string
+type NewUserAdditionalAttributesOpts struct {
+	Email               *string
+	Disabled            *bool
+	Groups              []string
+	DisplayName         *string
+	ExtendedUserDetails *UserDetailsExtended
 }
 
-func WithEmail(email string) func(detailsOpts *NewUserOptionalDetailsOpts) {
-	return func(opts *NewUserOptionalDetailsOpts) {
-		opts.Email = email
+type ModifyUserAdditionalAttributesOpts struct {
+	NewUserAttributes NewUserAdditionalAttributesOpts
+	Password          *string
+}
+
+func WithEmail(email string) func(detailsOpts *NewUserAdditionalAttributesOpts) {
+	return func(opts *NewUserAdditionalAttributesOpts) {
+		opts.Email = &email
 	}
 }
 
-func WithGroups(groups []string) func(detailsOpts *NewUserOptionalDetailsOpts) {
-	return func(opts *NewUserOptionalDetailsOpts) {
+func WithGroups(groups []string) func(detailsOpts *NewUserAdditionalAttributesOpts) {
+	return func(opts *NewUserAdditionalAttributesOpts) {
 		opts.Groups = groups
 	}
 }

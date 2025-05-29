@@ -2,18 +2,20 @@ package authentication
 
 import (
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"net/url"
 	"strconv"
 	"strings"
 
+	"github.com/go-ldap/ldap/v3"
+	"github.com/sirupsen/logrus"
+	"golang.org/x/text/language"
+
 	"github.com/authelia/authelia/v4/internal/clock"
 	"github.com/authelia/authelia/v4/internal/configuration/schema"
 	"github.com/authelia/authelia/v4/internal/logging"
 	"github.com/authelia/authelia/v4/internal/utils"
-	"github.com/go-ldap/ldap/v3"
-	"github.com/sirupsen/logrus"
-	"golang.org/x/text/language"
 )
 
 // LDAPUserProvider is a UserProvider that connects to LDAP servers like ActiveDirectory, OpenLDAP, OpenDJ, FreeIPA, etc.
@@ -576,11 +578,136 @@ func (p *LDAPUserProvider) ChangeGroups(username string, newGroups []string) (er
 	return nil
 }
 
-func (p *LDAPUserProvider) AddUser(username, displayName, password string, opts ...func(options *NewUserOptionalDetailsOpts)) (err error) {
+func (p *LDAPUserProvider) AddUser(username, displayName, password string, opts ...func(options *NewUserAdditionalAttributesOpts)) (err error) {
+	var client ldap.Client
+
+	if client, err = p.factory.GetClient(); err != nil {
+		return fmt.Errorf("unable to create user '%s': %w", username, err)
+	}
+
+	defer func() {
+		if err := p.factory.ReleaseClient(client); err != nil {
+			p.log.WithError(err).Warn("Error occurred releasing the LDAP client")
+		}
+	}()
+
+	options := NewUserAdditionalAttributesOpts{}
+	for _, opt := range opts {
+		opt(&options)
+	}
+
+	userDN := fmt.Sprintf("%s=%s,%s", p.config.Attributes.Username, ldap.EscapeFilter(username), p.usersBaseDN)
+
+	addRequest := ldap.NewAddRequest(userDN, nil)
+
+	switch p.config.Implementation {
+	case "activedirectory":
+		// Do the thing.
+	case "lldap":
+		// since lldap doesn't fully support object creation via LDIF, it is likely that special handling will have to be implemented using the supported api (graphql) via the web api.
+	default: // this includes rfc2307bis, and likely openldap.
+		// required attributes for rfc2307bis: dn, uid, cn, sn, objectClass.
+		addRequest.Attribute("objectClass", []string{"top", "person", "organizationalPerson", "inetOrgPerson"})
+		// addRequest.Attribute(p.config.Attributes.FamilyName, []string{options.FamilyName}).
+		addRequest.Attribute("sn", []string{})
+		addRequest.Attribute(ldapAttrCommonName, []string{displayName})
+		addRequest.Attribute(p.config.Attributes.Username, []string{username})
+	}
+
+	addRequest.Attribute(p.config.Attributes.DisplayName, []string{displayName})
+
+	// }.
+
+	var controls []ldap.Control
+
+	switch {
+	case p.features.ControlTypes.MsftPwdPolHints:
+		controls = append(controls, &controlMsftServerPolicyHints{ldapOIDControlMsftServerPolicyHints})
+	case p.features.ControlTypes.MsftPwdPolHintsDeprecated:
+		controls = append(controls, &controlMsftServerPolicyHints{ldapOIDControlMsftServerPolicyHintsDeprecated})
+	}
+
+	// some switch for different implementations.
+	if len(controls) > 0 {
+		addRequest.Controls = controls
+	}
+
+	addRequest.Attribute(ldapAttributeUserPassword, []string{password})
+
+	if err = client.Add(addRequest); err != nil {
+		return fmt.Errorf("unable to add user '%s': %w", username, err)
+	}
+
 	return nil
 }
 
 func (p *LDAPUserProvider) DeleteUser(username string) (err error) {
+	var (
+		client  ldap.Client
+		profile *ldapUserProfile
+	)
+
+	// Get an LDAP client.
+	if client, err = p.factory.GetClient(); err != nil {
+		return fmt.Errorf("unable to delete user '%s': %w", username, err)
+	}
+
+	defer func() {
+		if err := p.factory.ReleaseClient(client); err != nil {
+			p.log.WithError(err).Warn("Error occurred releasing the LDAP client")
+		}
+	}()
+
+	// First get the user profile to obtain the DN.
+	if profile, err = p.getUserProfile(client, username); err != nil {
+		if errors.Is(err, ErrUserNotFound) {
+			p.log.Debugf("User '%s' not found for deletion, considering delete successful", username)
+			return nil
+		}
+
+		return fmt.Errorf("unable to retrieve user profile for deletion of user '%s': %w", username, err)
+	}
+
+	// Attempt to delete the user.
+	deleteRequest := ldap.NewDelRequest(profile.DN, nil)
+
+	p.log.
+		WithField("dn", profile.DN).
+		Debug("Attempting to delete user")
+
+	if err = client.Del(deleteRequest); err != nil {
+		// Check if this is a referral.
+		if referral, ok := p.getReferral(err); ok {
+			p.log.Debugf("Attempting Delete on referred URL %s", referral)
+
+			var (
+				clientRef ldap.Client
+				errRef    error
+			)
+
+			if clientRef, errRef = p.factory.GetClient(WithAddress(referral)); errRef != nil {
+				return fmt.Errorf("error occurred connecting to referred LDAP server '%s': %+v. Original Error: %w", referral, errRef, err)
+			}
+
+			defer func() {
+				if err := p.factory.ReleaseClient(clientRef); err != nil {
+					p.log.WithError(err).Warn("Error occurred releasing the LDAP client")
+				}
+			}()
+
+			if errRef = clientRef.Del(deleteRequest); errRef != nil {
+				return fmt.Errorf("error occurred performing delete on referred LDAP server '%s': %+v. Original Error: %w", referral, errRef, err)
+			}
+
+			return nil
+		}
+
+		// Not a referral or referrals not permitted.
+		return fmt.Errorf("unable to delete user '%s': %w", username, err)
+	}
+
+	p.log.Infof("Successfully deleted user '%s'", username)
+
 	return nil
 }
 

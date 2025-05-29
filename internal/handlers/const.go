@@ -77,12 +77,14 @@ const (
 	messageUnableToAddUser                       = "Unable to add specified user"
 	messageUnableToDeleteUser                    = "Unable to delete specified user"
 	messageNewUserRequiredFields                 = "Username, DisplayName, and Password are required fields"
+	messageIncompleteUserCreation                = "The user has been created but metadata creation failed"
 )
 
 const (
-	messageFmtUsernameWrongFormat    = "Username must be either a valid email address or contain only: letters, numbers, hyphens(-), commas(,), and underscores(_)."
-	messageFmtGroupsWrongFormat      = "Groups must only contain: letters, numbers, hyphens(-), commas(,), and underscores(_)."
-	messageFmtDisplayNameWrongFormat = "Display Name must contain only printable unicode characters (no invisible or control characters)."
+	messageUsernameWrongFormat    = "Username must be either a valid email address or contain only: letters, numbers, hyphens(-), commas(,), and underscores(_)."
+	messageGroupsWrongFormat      = "Groups must only contain: letters, numbers, hyphens(-), commas(,), and underscores(_)."
+	messageDisplayNameWrongFormat = "Display Name must contain only printable unicode characters (no invisible or control characters)."
+	messageEmailWrongFormat       = "Username must be a valid email address."
 )
 
 const (
@@ -167,10 +169,6 @@ const (
 	errStrRespBody            = "error occurred writing the response body"
 	errStrUserSessionData     = "error occurred retrieving the user session data"
 	errStrUserSessionDataSave = "error occurred saving the user session data"
-)
-const (
-	errNotValidEmail            = "error string is not a valid email"
-	errNotValidPrintableUnicode = "error string is not valid printable unicode"
 )
 
 var (

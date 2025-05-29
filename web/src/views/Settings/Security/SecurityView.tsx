@@ -91,9 +91,11 @@ const SettingsView = function () {
     };
 
     const handleElevationRefresh = async () => {
-        try {const result = await getUserSessionElevation();
+        try {
+            const result = await getUserSessionElevation();
 
-        setElevation(result);} catch {
+            setElevation(result);
+        } catch {
             createErrorNotification(translate("Failed to get session elevation status"));
         }
     };
@@ -139,7 +141,7 @@ const SettingsView = function () {
 
         return configuration?.password_change_disabled ? (
             <Tooltip title={translate("This is disabled by your administrator.")}>
-                <span>{buttonContent}</span>
+                <Box component={"span"}>{buttonContent}</Box>
             </Tooltip>
         ) : (
             buttonContent
@@ -200,6 +202,12 @@ const SettingsView = function () {
                                     borderRadius: 1,
                                 }}
                             >
+                                <Typography>
+                                    {translate("Username")}: {userInfo?.username || ""}
+                                </Typography>
+                                <Typography>
+                                    {translate("Display Name")}: {userInfo?.display_name || ""}
+                                </Typography>
                                 <Box display="flex" alignItems="center">
                                     <Typography sx={{ mr: 1 }}>{translate("Email")}:</Typography>
                                     <Typography>{userInfo?.emails?.[0] || ""}</Typography>
@@ -214,19 +222,6 @@ const SettingsView = function () {
                                         ))}
                                     </List>
                                 )}
-                            </Box>
-                            <Box
-                                sx={{
-                                    width: "100%",
-                                    p: 1.25,
-                                    mb: 1,
-                                    border: `1px solid ${theme.palette.grey[600]}`,
-                                    borderRadius: 1,
-                                }}
-                            >
-                                <Typography>
-                                    {translate("Username")}: {userInfo?.display_name || ""}
-                                </Typography>
                             </Box>
                             <Box
                                 sx={{ p: 1.25, mb: 1, border: `1px solid ${theme.palette.grey[600]}`, borderRadius: 1 }}

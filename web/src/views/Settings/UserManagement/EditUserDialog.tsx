@@ -8,7 +8,7 @@ import {
     DialogContent,
     DialogTitle,
     FormControl,
-    Grid2,
+    Grid,
     TextField,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -183,9 +183,8 @@ const EditUserDialog = function (props: Props) {
                 <DialogContent>
                     <FormControl>
                         <Box sx={{ display: "flex", gap: 3 }}>
-                            {/*<Box sx={{ flex: "1" }}>*/}
-                            <Grid2 container spacing={1} alignItems={"center"}>
-                                <Grid2 size={{ xs: 12 }} sx={{ pt: 3 }}>
+                            <Grid container spacing={1} alignItems={"center"}>
+                                <Grid size={{ xs: 12 }} sx={{ pt: 3 }}>
                                     <TextField
                                         fullWidth
                                         label="Display Name"
@@ -197,8 +196,8 @@ const EditUserDialog = function (props: Props) {
                                         }
                                         onChange={handleChange}
                                     />
-                                </Grid2>
-                                <Grid2 size={{ xs: 12 }} sx={{ pt: 3 }}>
+                                </Grid>
+                                <Grid size={{ xs: 12 }} sx={{ pt: 3 }}>
                                     <TextField
                                         fullWidth
                                         label="Email"
@@ -212,8 +211,8 @@ const EditUserDialog = function (props: Props) {
                                                 : (editedUser?.emails ?? "")
                                         }
                                     />
-                                </Grid2>
-                                <Grid2 size={{ xs: 12 }} sx={{ pt: 3 }}>
+                                </Grid>
+                                <Grid size={{ xs: 12 }} sx={{ pt: 3 }}>
                                     <Autocomplete
                                         multiple
                                         id="select-user-groups"
@@ -235,16 +234,16 @@ const EditUserDialog = function (props: Props) {
                                             />
                                         )}
                                     />
-                                </Grid2>
-                                <Grid2 size={{ xs: 12 }} sx={{ pt: 3 }}>
+                                </Grid>
+                                <Grid size={{ xs: 12 }} sx={{ pt: 3 }}>
                                     <Button color={"success"} onClick={handleSave} disabled={!changesMade}>
                                         {translate("Save")}
                                     </Button>
                                     <Button color={"error"} onClick={handleSafeClose}>
                                         {translate("Exit")}
                                     </Button>
-                                </Grid2>
-                            </Grid2>
+                                </Grid>
+                            </Grid>
                             {/*</Box>*/}
                         </Box>
                     </FormControl>
